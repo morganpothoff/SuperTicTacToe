@@ -15,7 +15,7 @@ class Game(Tk):
 	"""
 	def __init__(self):
 		Tk.__init__(self, screenName="TicTacToe")
-		self.geometry("300x300")
+		self.geometry("700x700")
 
 		self.board = Board(self)
 		self.current_player: int = 0
@@ -32,25 +32,28 @@ class Game(Tk):
 		if(self.state.game_over()):
 			print("Game over")
 
-			for x, row in enumerate(self.state.boxes):
+			# Convert remaining buttons to text
+			for x, row in enumerate(self.board.boxes):
 				for y, value in enumerate(row):
-					if(value is None):
+					if(not isinstance(value, Label)):
 						self.board.replace_button_with_text(x, y, " ")
 
+			# Convert texts to color
+			self.board.configure_boxes(bg={0: "blue", 1: "red"}[not self.current_player])
+				# Determine current weenner
+				# Set color of all text to color of weenner
 
 
-
-class Board(ttk.Frame):
+class Board(Frame):
 	"""
 	# has 9 boxes
 	"""
 	def __init__(self, game: Game):
-		Frame.__init__(self, game, bg="Blue")
+		Frame.__init__(self, game, bg="Black")
 		self.grid()  # Grid self to game(TK)
 
 		self.game: Game = game  # save reference to parent so that we can access it later
 
-		self.text = [[None, None, None] for x in range(3)]
 		self.boxes = [[None, None, None] for x in range(3)]
 
 		for row in range(3):
@@ -59,19 +62,23 @@ class Board(ttk.Frame):
 
 
 	def replace_button_with_text(self, row: int, column: int, text: str):
-		frame = ttk.Frame(self, background="White", height=50, width=50)
-		ttk.Label(frame, text=text).grid(row=0, column=0)
-		self.text[row][column] = frame
 		# FROM: https://stackoverflow.com/a/66022800
 		self.grid_slaves(row=row, column=column)[0].destroy()
-		self.text[row][column].grid(row=row, column=column, padx=(25, 25), pady=(14, 14))
+		self.boxes[row][column] = Label(self, text=text, width=5, height=2)
+		self.boxes[row][column].grid(row=row, column=column, padx=(4, 4), pady=(4, 4))
+
+
+	def configure_boxes(self, **kwargs: dict):
+		for row in self.boxes:
+			for box in row:
+				box.config(**kwargs)
 
 
 
 class Box(ttk.Button):
 	def __init__(self, board: Board, row: int, column: int):
-		Button.__init__(self, board, height=10, width=10, text=" ", command=self.on_click)
-		self.grid(column=column, row=row, padx=(10, 10), pady=(10, 10))
+		Button.__init__(self, board, height=2, width=2, text=" ", command=self.on_click)
+		self.grid(column=column, row=row, padx=(4, 4), pady=(4, 4))
 
 		self.board: Board = board
 		self.row = row
@@ -123,6 +130,7 @@ class State():
 			if(all(self.boxes[row][column] == symbol for row, column in diagonal)):
 				return True
 
+		return False
 
 
 # class Player:
