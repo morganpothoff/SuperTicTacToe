@@ -59,7 +59,9 @@ class Board(ttk.Frame):
 
 
 	def replace_button_with_text(self, row: int, column: int, text: str):
-		self.text[row][column] = ttk.Label(self, text=text)
+		frame = ttk.Frame(self, background="White", height=50, width=50)
+		ttk.Label(frame, text=text).grid(row=0, column=0)
+		self.text[row][column] = frame
 		# FROM: https://stackoverflow.com/a/66022800
 		self.grid_slaves(row=row, column=column)[0].destroy()
 		self.text[row][column].grid(row=row, column=column, padx=(25, 25), pady=(14, 14))
@@ -68,7 +70,7 @@ class Board(ttk.Frame):
 
 class Box(ttk.Button):
 	def __init__(self, board: Board, row: int, column: int):
-		Button.__init__(self, board, text=" ", command=self.on_click)
+		Button.__init__(self, board, height=10, width=10, text=" ", command=self.on_click)
 		self.grid(column=column, row=row, padx=(10, 10), pady=(10, 10))
 
 		self.board: Board = board
